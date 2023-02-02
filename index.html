@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="helloWorld">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Hello, World</title>
+    <script src="angular.min.js"></script>
+
+    <script>
+        // A função angular.module() com array CRIA um módulo.
+        angular.module( 
+            'helloWorld', // Nome da aplicação/módulo.
+            [], // Array para import de outros módulos do AngularJS.
+        );
+        
+        // A função angular.module() sem o array LOCALIZA o módulo.
+        angular.module('helloWorld').controller(
+            'helloWorldCtrl', 
+            function($scope) { // O escopo $scope é injetado no componente.
+                // O escopo é o ponto de comunicação entre o Controller e a View.
+                $scope.message = "Hello World!";
+            },
+        ); 
+    </script>
+</head>
+<body> 
+    <!-- A view o objeto onde você coloca o atributo ng-controller -->
+    <div  ng-controller="helloWorldCtrl">
+        <!-- 
+            Os colchetes são caracteres de interpolação: colocam variáveis do 
+            escopo na view. A referência a $scope é implícita, não precisa 
+            declará-la no espaço de interpolação na view.
+         -->
+        {{ message }} 
+    </div>
+</body>
+</html>

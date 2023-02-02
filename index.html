@@ -1,39 +1,112 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="helloWorld">
+<html lang="en" ng-app="listaTelefonica">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>Hello, World</title>
-    <script src="angular.min.js"></script>
+    <title>Lista Telefônica</title>
+    <link rel="stylesheet" href="lib/bootstrap/bootstrap.min.css">
+    <style>
+        .jumbotron {
+            width: 400px;
+            text-align: center;
+            /* Duas margens auto centraliza o elemento. */
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 20px;
+        }
+        .table {
+            margin-top: 20px;
+        }
+        .form-control {
+            margin-bottom: 5px;
+        }
+    </style>
+
+    <script src="lib/bootstrap/jquery-3.2.1.slim.min.js"></script>
+    <script src="lib/bootstrap/popper.min.js"></script>
+    <script src="lib/bootstrap/bootstrap.min.js"></script>
+
+    <script src="lib/angular/angular.min.js"></script>
 
     <script>
-        // A função angular.module() com array CRIA um módulo.
-        angular.module( 
-            'helloWorld', // Nome da aplicação/módulo.
-            [], // Array para import de outros módulos do AngularJS.
-        );
-        
-        // A função angular.module() sem o array LOCALIZA o módulo.
-        angular.module('helloWorld').controller(
-            'helloWorldCtrl', 
-            function($scope) { // O escopo $scope é injetado no componente.
-                // O escopo é o ponto de comunicação entre o Controller e a View.
-                $scope.message = "Hello World!";
-            },
-        ); 
+        angular.module('listaTelefonica', []);
+
+        angular.module('listaTelefonica')
+            .controller(
+                'listaTelefonicaCtrl', 
+                function($scope) {
+                    $scope.app = "Lista Telefônica";
+                    $scope.contatos = [
+                        { nome : "Pedro", telefone: "99999-8888"},
+                        { nome : "Ana", telefone: "99999-7777"},
+                        { nome : "Maria", telefone: "99999-6666"},
+                    ];
+                    /*
+                        Três formas de passar objeto para uma função:
+                        1)  Ruim: buscar valores de fora da função, de variáveis globais.
+                            Isso dificulta testes unitários, porque eles vão depender da 
+                            atribuição dessas variáveis globais.
+                        2)  Média: declarar todos os parâmetros na assinatura da função.
+                            Isso é ruim porque é pouco abstrato, você acaba tendo mais 
+                            variáveis para gerenciar.
+                        3)  Boa: declarar na função apenas o parâmetro que representa a
+                            entidade toda. Isso facilita a mudança do código.
+                    */
+                    $scope.adicionarContato = function (contato) {
+                        /* 
+                            A função angular.copy(obj) cria uma cópia de obj, para 
+                            evitar bindings com outros elementos que estejam no escopo.
+                        */
+                        $scope.contatos.push(angular.copy(contato));
+                        // Esvazia o objeto (na verdade é de-setada).
+                        delete($scope.contato);
+                    };
+                },
+            );
     </script>
 </head>
-<body> 
-    <!-- A view o objeto onde você coloca o atributo ng-controller -->
-    <div  ng-controller="helloWorldCtrl">
+<body ng-controller="listaTelefonicaCtrl"> 
+    <div class="jumbotron">
         <!-- 
-            Os colchetes são caracteres de interpolação: colocam variáveis do 
-            escopo na view. A referência a $scope é implícita, não precisa 
-            declará-la no espaço de interpolação na view.
-         -->
-        {{ message }} 
-    </div>
+            ng-bind é usado na tag, e substitui uma interpolação.
+            O benefício da diretiva ng-bind sobre a interpolação é que
+            a interpolação pode exibir a lógica da aplicação, se hover 
+            problemas no carregamento do JavaScript. Em compensação, usar
+            interpolação é mais explícito e claro para o desenvolvedor.
+        -->
+        <h3 ng-bind="app"></h3>
+        <table class="table table-striped">
+            <tr>
+                <th>Nome</th>
+                <th>Telefone</th>
+            </tr>
+            <!-- 
+                ng-repeat: dentro da diretiva use a sintaxe "<obj> in <col>".
+             -->
+            <tr ng-repeat="contato in contatos">
+                <td>{{ contato.nome }}</td>
+                <td>{{ contato.telefone }}</td>
+                <!-- 
+                    Outra sintaxe para ng-repeat: "<(key, val)> in <col>".
+                    No JSON de contatos, a chave é nome, e o valor é telefone:
+
+                    <td ng-repeat="(key, value) in contato">
+                        {{ key + ' - ' + value }}
+                    </td>
+                -->
+            </tr>
+        </table>
+        <hr/>
+        <!-- 
+            Two-way data-binding: sempre que há uma atualização num ngModel, 
+            ela é propagada em elementos com outras diretivas (por exemplo,
+            ngBind, ngRepeat etc.).
+        -->
+        <input class="form-control" type="text" ng-model="contato.nome" placeholder="Nome">
+        <input class="form-control" type="text" ng-model="contato.telefone" placeholder="Telefone">
+        <button class="btn btn-primary btn-block" ng-click="adicionarContato(contato)">Adicionar Contato</button>
+    </div>    
 </body>
 </html>

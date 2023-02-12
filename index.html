@@ -36,9 +36,10 @@
     <script src="lib/bootstrap/bootstrap.min.js"></script>
 
     <script src="lib/angular/angular.min.js"></script>
+    <script src="lib/angular/angular-messages.min.js"></script>
 
     <script>
-        angular.module('listaTelefonica', []);
+        angular.module('listaTelefonica', [ 'ngMessages' ]);
 
         angular.module('listaTelefonica')
             .controller(
@@ -76,6 +77,8 @@
                         $scope.contatos.push(angular.copy(contato));
                         // Esvazia o objeto (na verdade é de-setada).
                         delete($scope.contato);
+                        // $setPristine() renova o formulário.
+                        $scope.contatoForm.$setPristine(); 
                     };
                     $scope.apagarContatos = function(contatos) {
                         $scope.contatos = contatos.filter(function (contato) {
@@ -134,17 +137,41 @@
         </table>
         <hr/>
         <!-- 
-            Two-way data-binding: sempre que há uma atualização num ngModel, 
-            ela é propagada em elementos com outras diretivas (por exemplo,
-            ngBind, ngRepeat etc.).
+            Ao criar um formulário **nomeado** dentro do HTML de um controller,
+            o nome desse formulário será atribuído ao escopo do controller, e 
+            todos os campos do formulário estarão disponíveis:
+
         -->
-        <input class="form-control" type="text" ng-model="contato.nome" placeholder="Nome">
-        <input class="form-control" type="text" ng-model="contato.telefone" placeholder="Telefone">
-        <select class="form-control" ng-model="contato.operadora" ng-options="operadora.nome for operadora in operadoras">
-            <option value="">Selecione uma operadora</option>
-        </select>
-        <button class="btn btn-primary btn-block" ng-click="adicionarContato(contato)" ng-disabled="!(contato.nome&&contato.telefone)">Adicionar Contato</button>
-        <button class="btn btn-danger btn-block" ng-click="apagarContatos(contatos)" ng-hide="!isContatoSelecionado(contatos)">Apagar Contatos</button>
+        <form name="contatoForm">
+            <!-- 
+                Two-way data-binding: sempre que há uma atualização num ngModel, 
+                ela é propagada em elementos com outras diretivas (por exemplo,
+                ngBind, ngRepeat etc.).
+            -->
+            <input class="form-control" type="text" ng-model="contato.nome" placeholder="Nome" ng-required="true" name="nome" ng-minlength="10">
+            <input class="form-control" type="text" ng-model="contato.telefone" placeholder="Telefone" ng-required="true" name="telefone" ng-pattern="/^\d{4,5}-?\d{4}$/">
+            <select class="form-control" ng-model="contato.operadora" ng-options="operadora.nome for operadora in operadoras">
+                <option value="">Selecione uma operadora</option>
+            </select>
+            <div ng-messages="contatoForm.nome.$error" class="alert alert-danger" ng-hide="contatoForm.nome.$valid || contatoForm.nome.$pristine">
+                <div ng-message="required">
+                    Por favor, preencha o nome.
+                </div>
+                <div ng-message="minlength">
+                    O campo nome deve ter no mínimo 10 caracteres.
+                </div>
+            </div>
+            <div ng-messages="contatoForm.telefone.$error" class="alert alert-danger" ng-hide="contatoForm.telefone.$valid || contatoForm.telefone.$pristine">
+                <div ng-message="required">
+                    Por favor, preencha o telefone.
+                </div>
+                <div ng-message="pattern">
+                    O campo telefone deve ter o formato DDDDD-DDDD.
+                </div>
+            </div>
+            <button class="btn btn-primary btn-block" ng-click="adicionarContato(contato)" ng-disabled="contatoForm.$invalid">Adicionar Contato</button>
+            <button class="btn btn-danger btn-block" ng-click="apagarContatos(contatos)" ng-hide="!isContatoSelecionado(contatos)">Apagar Contatos</button>
+        </form>
     </div>
     <div ng-include="'footer.html'"></div>    
 </body>

@@ -1,4 +1,4 @@
-b# Material de Estudo
+# Material de Estudo
 
 ## <a href="https://www.youtube.com/watch?v=_y7rKxqPoyg&list=PLQCmSnNFVYnTD5p2fR4EXmtlR6jQJMbPb&index=1">AngularJS #1 - Introdução e Hello World</a>
 
@@ -192,4 +192,100 @@ O elemento **desaparece** do DOM, se a condição for falsa. Use em elementos do
 Insere um arquivo conforme a **string** que você inserir como parâmetro (note que no exemplo usamos aspas simples dentro das aspas duplas, pois sem elas o nome do arquivo seria procurado dentro de $scope):
 ```HTML
 <div ng-include="'footer.html'"></div>    
+```
+
+## <a href="https://www.youtube.com/watch?v=HDjpIT2TLP0&list=PLQCmSnNFVYnTD5p2fR4EXmtlR6jQJMbPb&index=4">AngularJS #4 - Validando Formulários</a>
+
+| Diretiva      | Explicação |
+| ---           | --- |
+| ngRequired         | Determina a obrigatoriedade de um campo, e recebe um boolenao. |
+| ngMinlength         | Determina o tamanho mínimo de um campo. |
+| ngMaxlength         | Determina o tamanho maximo de um campo. |
+| ngPattern         | Aplica uma RegEx a um campo. |
+| ngMessages e ngMessage         | Agrupa mensagens de erro. |
+
+
+### Propriedades <form>.$valid e <form>.$invalid
+Ao criar um formulário **nomeado** dentro do HTML de um controller, o nome desse formulário será atribuído ao escopo do controller. Ele tem dois elementos: $valid e $invalid. Todos os campos que contenham as diretivas ngModel e ngRequired (tem que ter os dois) serão usados para determinar se o formulário é ou não válido:
+
+```HTML
+<p>É válido: {{ contatoForm.$valid }}</p>
+<p>É inválido: {{ contatoForm.$invalid }}</p>
+<p>{{ contatoForm }}</p>
+<!-- O formulário já será válido se contato.nome for preenchido -->
+<form name="contatoForm">
+    <input type="text" ng-model="contato.nome" ng-required="true">
+    <input type="text" ng-model="contato.telefone" >
+    <button type="submit">Enviar</button>
+</form>
+```
+
+Os nomes dos campos dão origem a outras subvariáveis do formulário declarado no controller:
+```HTML
+<form name="contatoForm">
+    <input type="text" name="nome" ng-model="contato.nome" ng-required="true">
+    <input type="text" name="telefone" ng-model="contato.telefone" ng-required="true">
+    <!-- 
+        Perceba como a mensagem de validação pode ser aplicada a cada campo 
+        do formulário. Basta usar <formulario>.<campo>.$invalid ou $valid.
+    -->
+    <div class="msg" ng-show="contatoForm.nome.$invalid">
+        Por favor, preencha o nome.
+    </div>
+    <div class="msg" ng-show="contatoForm.telefone.$invalid">
+        Por favor, preencha o telefone.
+    </div>
+    <button ng-click="adicionarContato(contato)">Adicionar Contato</button>
+</form>
+```
+
+### Propriedades <form>.$pristine e <form>.$dirty
+O atributo `$pristine` (não tocado) é o contrário de `$dirty` (já alterado):
+```HTML
+<form name="form">
+    <input type="text" name="nome" ng-model="contato.nome" ng-required="true">
+    <input type="text" name="tel" ng-model="contato.telefone" ng-required="true">
+    <!-- 
+        Perceba como a mensagem de validação pode ser aplicada a cada campo 
+        do formulário. Basta usar <formulario>.<campo>.$invalid ou $valid.
+    -->
+    <div class="msg" ng-show="form.nome.$invalid && form.nome.$dirty">
+        Por favor, preencha o nome.
+    </div>
+    <div class="msg" ng-show="!(form.tel.$invalid && form.tel.$pristine)">
+        Por favor, preencha o telefone.
+    </div>
+    <button ng-click="adicionarContato(contato)">Adicionar Contato</button>
+</form>
+```
+
+### Propriedade `<form>.<campo>.$error`
+A propriedade `$error` é um conjunto de validação para diferentes validadores.
+Aplique ela no HTML para ver quais os validadores possíveis (required, minlength etc.).
+
+
+### ngPattern
+As RegEx aplicadas na diretiva ngPattern no Angular precisam estar entre barras:
+```HTML
+<form name="formulario">
+    <input name="telefone" ng-pattern="/^\d{4,5}-?\d{4}$/">
+    <div ng-hide="formulario.telefone.$error.pattern" class="alert">
+        O campo telefone deve ter o formato DDDDD-DDDD.
+    </div>
+</form>
+```
+
+### ngMessages e ngMessage
+As diretivas ngMessages e ngMessage **não** estão no angular.js. É necessário baixar o `angular-messages.js`.
+
+A diretiva ngMessages recebe a lista de erros do campo. E a diretiva ngMessage recebe a diretiva correspondente ao erro que se pretende reportar.
+```HTML
+<div ng-messages="contatoForm.telefone.$error">
+    <div ng-message="required">
+        Por favor, preencha o telefone.
+    </div>
+    <div ng-message="pattern">
+        O campo telefone deve ter o formato DDDDD-DDDD.
+    </div>
+</div>
 ```
